@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="api.js"></script>
+<script src="dashboard.js"></script>
 <style>
 :root{--navy:#0F2A4F;--navy2:#183A66;--blue:#1D5FBF;--ink:#0F2744;--muted:#4A5B73;--line:#D9E3F0;--line2:#E6EDF6;--bg:#F4F7FB;--tint:#E8F0FB;--warn:#9A3A00;--warnbg:#FDEBD9}
 *{box-sizing:border-box}
@@ -16,6 +17,7 @@ button,input,select{font:inherit;color:inherit}
 a{color:var(--blue)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .hidden{display:none!important}
+[hidden]{display:none!important}
 /* login */
 #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-box{width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px}
@@ -84,6 +86,75 @@ td.num{text-align:right}
 .drow span:first-child{color:var(--muted);flex-shrink:0}.drow span:last-child{font-weight:500;text-align:right;white-space:pre-wrap}
 .x{width:40px;height:40px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;flex-shrink:0}
 .loading{padding:60px;text-align:center;color:var(--muted)}
+/* dashboard */
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;margin-left:8px}
+.pill.ok{background:#E3F4EA;color:#17663A}.pill.blue{background:var(--blue);color:#fff;margin-left:auto}
+.sub{font-size:13px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.small{font-size:12px}.strong{font-weight:600}.warn{color:var(--warn)}.blue{color:var(--blue)}
+.tabs{display:flex;gap:4px;padding:4px;background:#E3EBF6;border-radius:10px;align-self:flex-start}
+.tabs button{height:38px;padding:0 18px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px}
+.tabs button[aria-selected=true]{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(15,39,68,.15)}
+.tabs .cnt{font-size:11px;padding:0 7px;border-radius:999px;background:#EA7A1F;color:#fff}
+.kbtn{flex:1 1 150px;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.kbtn>span{display:flex;flex-direction:column}.kbtn .l,.kbtn .s{display:block}
+.row2{display:flex;flex-wrap:wrap;gap:18px;align-items:stretch}
+.panel{padding:18px 20px;min-width:0}
+.panel h2{margin:0;font-size:17px}
+.ph{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px}
+.legend,.legend-status{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted)}
+.legend span,.legend-status span{display:flex;align-items:center;gap:4px}
+.legend i,.legend-status i,.mixlist i,.wcard i{width:9px;height:9px;border-radius:2px;display:inline-block;flex-shrink:0}
+.weeks{display:grid;grid-template-columns:repeat(8,minmax(132px,1fr));gap:10px;min-width:1120px}
+.wk{border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:260px;background:#F7F9FC;border:1px solid #E3EAF4}
+.wk.now{background:var(--tint);border:1.5px solid var(--blue)}.wk.now .wkh b{color:var(--blue)}
+.wkh{display:flex;align-items:center}.wkh .pill{font-size:11px}
+.load{height:5px;border-radius:5px;background:#DCE5F2;overflow:hidden;margin-bottom:4px}.load span{display:block;height:5px;background:var(--blue);border-radius:5px}
+.wcard,.alert,.chg,.vrow,.stage{font:inherit;color:inherit;text-align:left;cursor:pointer}
+.wcard{display:flex;flex-direction:column;gap:2px;padding:8px 9px;border-radius:8px;border:1px solid var(--line);background:#fff}
+.wcard.risk{border-color:#F2B48A;background:#FFF7F0}.wcard i{margin-right:5px}
+.nm{display:block;font-size:13px;font-weight:600;color:var(--ink);line-height:1.3}
+.alerts{flex:1 1 300px;display:flex;flex-direction:column;gap:8px}
+#alerts{display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:420px}
+.alert{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;border:1px solid #F2C9A8;background:#FFF7F0}
+.alert>span:last-child{display:flex;flex-direction:column;min-width:0}
+.days{min-width:48px;text-align:center;padding:4px 0;border-radius:8px;background:var(--warnbg);color:var(--warn);font-size:10px;font-weight:600}
+.days b{display:block;font-size:18px;line-height:1.1}.days.hot{background:#C2410C;color:#fff}
+.pipe{display:flex;flex-wrap:wrap;gap:10px}
+.stage{flex:1 1 150px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.big{font-size:28px;font-weight:700;line-height:1}.big small{font-size:12px;font-weight:400;color:var(--muted)}
+.bar,.cbar{display:block;height:6px;border-radius:6px;background:#EEF2F7;overflow:hidden}.bar span,.cbar span{display:block;height:6px;border-radius:6px}
+.cols{display:flex;gap:8px;align-items:flex-end;height:250px;min-width:520px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+.stack{width:70%;max-width:34px;display:flex;flex-direction:column;border-radius:4px 4px 0 0;overflow:hidden}.stack span{display:block}
+.col>span:last-child{margin-top:4px;padding-top:4px;border-top:1px solid var(--line);width:100%;text-align:center}
+.mixwrap{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center}
+.donut{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.donut>div{width:104px;height:104px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}.donut b{font-size:26px;line-height:1}
+.mixlist{display:flex;flex-direction:column;gap:8px;min-width:160px}.mixlist div{display:flex;align-items:center;gap:8px;font-size:13px}.mixlist span:nth-child(2){flex:1}
+.ringrow{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-around}
+.ring{flex:1 1 120px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.rg{width:116px;height:116px;border-radius:50%;display:flex;align-items:center;justify-content:center}.rg div{width:86px;height:86px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}.rg b{font-size:23px}
+.grp{display:flex;justify-content:space-around;align-items:flex-end;gap:12px;min-height:200px}
+.g{display:flex;flex-direction:column;align-items:center;gap:6px}.gb{display:flex;align-items:flex-end;gap:6px;border-bottom:1px solid var(--line)}
+.gbar{display:flex;flex-direction:column;align-items:center;gap:3px}.gbar span:last-child{width:26px;border-radius:4px 4px 0 0}
+.vrow{display:flex;align-items:center;gap:10px;width:100%;padding:4px 0;border:0;background:none}
+.vn{width:90px;flex-shrink:0;font-size:13px;font-weight:600}.vbar{flex:1;height:20px;display:flex;border-radius:5px;overflow:hidden;background:#F4F7FB}.vbar span{height:20px}
+.vt{width:120px;flex-shrink:0;text-align:right}
+#changes{display:flex;flex-direction:column;gap:6px}
+.chg{display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid var(--line2);border-radius:10px;background:#fff}
+.chg>span:first-child{flex:1;min-width:0}.chg .cbar{width:110px;flex-shrink:0;height:8px}.chg b{width:44px;text-align:right}
+.modal{position:fixed;inset:0;background:rgba(15,39,68,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:30}
+.sheet{width:680px;max-width:100%;background:#fff;border-radius:14px;overflow:hidden}
+.rhead{background:var(--navy);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;gap:12px}.rhead h2{margin:2px 0;font-size:20px}
+.rhead .x{background:var(--navy2);color:#fff;border:0}
+.rbody{padding:20px 22px;display:flex;flex-direction:column;gap:6px}.rbody h3{font-size:13px;color:var(--blue);margin:14px 0 2px}
+.rstats{display:flex;flex-wrap:wrap;gap:10px}.rstats div{flex:1 1 130px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column}.rstats b{font-size:22px}
+.rl{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line2);font-size:13px}
+.ractions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.nav button{all:unset;min-height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D5E0EF;font-weight:500;cursor:pointer}
+.nav button[aria-current=page]{background:var(--blue);color:#fff;font-weight:600}
+.nav button:focus-visible{outline:2px solid #fff}
+@media print{body.print-report>*:not(#report){display:none!important}body.print-report #report{position:static;background:none;padding:0}body.print-report .noprint{display:none!important}body.print-report .sheet{width:100%}}
 @media (max-width:860px){#app{flex-direction:column}nav.side{width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center}.asof,.who{margin-top:0}main{padding:18px 14px}.detail{position:static;max-height:none}}
 @media print{nav.side,.filters,.actions,.detail,.chips,.warnbar{display:none!important}main{padding:0}table{min-width:0;font-size:10px}td{white-space:normal}.card{border:0}}
 </style>
@@ -114,8 +185,8 @@ td.num{text-align:right}
   <nav class="side" aria-label="Main menu">
     <div class="brand"><div class="logo" style="width:36px;height:36px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><div><b>Machine Order</b><small>Monitor · DET</small></div></div>
     <div class="nav">
-      <span>Dashboard <em>Phase 2</em></span>
-      <a href="#" aria-current="page">Machine List</a>
+      <button type="button" data-view="dash" aria-current="page">Dashboard</button>
+      <button type="button" data-view="list">Machine List</button>
     </div>
     <div class="asof">Data as of <b id="asof">—</b><br>Compared with <span id="prevof">—</span></div>
     <div class="who" id="who"></div>
@@ -123,6 +194,58 @@ td.num{text-align:right}
   </nav>
 
   <main>
+    <div id="warn" class="warnbar hidden" role="status"></div>
+    <div id="loading" class="card loading">Loading data…</div>
+
+    <section id="viewDash" class="hidden" style="display:flex;flex-direction:column;gap:18px">
+      <div class="head">
+        <div><h1>Overview</h1><div class="sub" id="dSub"></div></div>
+        <div class="actions" style="align-items:flex-end">
+          <label class="f" style="font-size:12px;color:var(--muted)">Site<select class="inp" id="dSite" style="height:40px;min-width:110px"></select></label>
+          <label class="f" style="font-size:12px;color:var(--muted)">Plant<select class="inp" id="dPlant" style="height:40px;min-width:120px"></select></label>
+          <button class="btn primary" type="button" id="reportBtn" style="height:40px">Weekly Report</button>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Dashboard view">
+        <button type="button" role="tab" data-tab="monitor" aria-selected="true">Monitor <span class="cnt" id="alertBadge">0</span></button>
+        <button type="button" role="tab" data-tab="analytics" aria-selected="false">Analytics</button>
+      </div>
+
+      <div id="tabMonitor" style="display:flex;flex-direction:column;gap:18px">
+        <section class="kpis" id="dKpis" aria-label="Key numbers"></section>
+        <div class="row2">
+          <section class="card panel" style="flex:999 1 560px;padding-right:0">
+            <div class="ph" style="padding-right:20px"><h2>Incoming · next 8 weeks</h2>
+              <div class="legend"><span><i style="background:#EA7A1F"></i>At risk (late or past ETA)</span></div></div>
+            <div class="scroll" style="padding-right:20px;padding-bottom:4px"><div class="weeks" id="weeks"></div></div>
+          </section>
+          <section class="card panel alerts">
+            <div class="ph" style="margin:0"><h2>Alerts</h2></div>
+            <div id="alerts"></div>
+          </section>
+        </div>
+      </div>
+
+      <div id="tabAnalytics" hidden style="flex-direction:column;gap:18px">
+        <section class="card panel"><div class="ph"><h2>Pipeline</h2><span class="muted small">Click a step to open its machines</span></div><div class="pipe" id="pipe"></div></section>
+        <div class="row2">
+          <section class="card panel" style="flex:999 1 520px"><div class="ph"><h2>Monthly demand by status</h2><div class="legend-status"></div></div>
+            <div class="muted small" id="monthlyYear" style="margin-bottom:10px"></div><div class="scroll" id="monthly"></div></section>
+          <section class="card panel" style="flex:1 1 320px"><div class="ph"><h2>Status mix</h2></div><div class="mixwrap" id="mix"></div></section>
+        </div>
+        <div class="row2">
+          <section class="card panel" style="flex:1 1 420px"><div class="ph"><h2>Rates vs Global report</h2></div><div class="ringrow" id="rates"></div></section>
+          <section class="card panel" style="flex:1 1 420px"><div class="ph"><h2>Rates by site</h2>
+            <div class="legend"><span><i style="background:#9DB9E3"></i>Order</span><span><i style="background:#3F7FD9"></i>Delivery</span><span><i style="background:#0F2A4F"></i>Acceptance</span></div></div><div id="siteRates"></div></section>
+        </div>
+        <div class="row2">
+          <section class="card panel" style="flex:1 1 420px"><div class="ph"><h2>Status by vendor</h2><div class="legend-status"></div></div><div id="vendors"></div></section>
+          <section class="card panel" style="flex:1 1 420px"><div class="ph"><h2>ETA changes vs last week</h2><span class="pill" style="background:var(--warnbg);color:var(--warn)" id="slipBadge"></span></div><div id="changes"></div></section>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewList" class="hidden" style="display:flex;flex-direction:column;gap:18px">
     <div class="head">
       <div><h1>Machine List</h1><div class="muted" style="font-size:13px">Filter, check each machine and export what you see</div></div>
       <div class="actions">
@@ -131,10 +254,7 @@ td.num{text-align:right}
         <button class="btn primary" type="button" id="xlsBtn">Export Excel</button>
       </div>
     </div>
-    <div id="warn" class="warnbar hidden" role="status"></div>
-    <div id="loading" class="card loading">Loading data…</div>
-
-    <div id="content" class="hidden" style="display:flex;flex-direction:column;gap:18px">
+    <div id="content" style="display:flex;flex-direction:column;gap:18px">
       <section class="kpis" id="kpis" aria-label="Key numbers"></section>
 
       <section class="card filters" aria-label="Filters">
@@ -167,7 +287,9 @@ td.num{text-align:right}
         <aside class="card detail" id="detail" aria-live="polite"></aside>
       </div>
     </div>
+    </section>
   </main>
+  <div id="report" class="modal hidden" role="dialog" aria-label="Weekly report"><div class="sheet" id="reportBody"></div></div>
 </div>
 
 <script>
@@ -193,7 +315,7 @@ const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
 const fmtD = d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? `${+d.slice(8,10)} ${MON[+d.slice(5,7)-1]} ${d.slice(0,4)}` : (d || '—');
 const typeLabel = t => t === '新机' ? 'New (新机)' : t === '复购机' ? 'Repeat (复购机)' : (t || '—');
 
-let D = null, rows = [], sel = null, sortKey = null, sortDir = 1;
+let D = null, rows = [], sel = null, sortKey = null, sortDir = 1, view = 'dash';
 const F = {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all',rule:'ETA after Setup Date'};
 
 /* ---------- boot ---------- */
@@ -218,14 +340,14 @@ $('logoutBtn').onclick = async () => { await Api.logout(); D = null; showLogin()
 $('refreshBtn').onclick = () => load();
 
 async function load() {
-  $('loading').classList.remove('hidden'); $('content').classList.add('hidden');
+  $('loading').classList.remove('hidden'); $('viewDash').classList.add('hidden'); $('viewList').classList.add('hidden');
   let r;
   try { r = await Api.getData(); } catch (e) { $('loading').textContent = 'Cannot reach the server. Press Refresh to try again.'; return; }
   if (!r.ok) {
     if (r.error === 'SESSION_EXPIRED') return showLogin('Your session has ended. Sign in again.');
     $('loading').textContent = 'The server returned an error: ' + (r.detail || r.error); return;
   }
-  D = r; prepare(); $('loading').classList.add('hidden'); $('content').classList.remove('hidden'); render();
+  D = r; prepare(); $('loading').classList.add('hidden'); go(view); render(); renderDash();
 }
 
 function prepare() {
@@ -321,6 +443,18 @@ $('xlsBtn').onclick = () => {
   XLSX.writeFile(wb, `DET_Machine_List_${today}.xlsx`);
 };
 $('pdfBtn').onclick = () => window.print();
+
+function go(v) {
+  view = v;
+  $('viewDash').classList.toggle('hidden', v !== 'dash');
+  $('viewList').classList.toggle('hidden', v !== 'list');
+  document.querySelectorAll('[data-view]').forEach(b => b.toggleAttribute('aria-current', b.dataset.view === v));
+  document.querySelectorAll('[data-view]').forEach(b => { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); });
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { if (D) go(b.dataset.view); }));
+function clearListFilters() { Object.assign(F, {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all'}); F.rule = (D && D.delayRule) || 'ETA after Setup Date'; sel = null; }
+function syncListInputs() { [['fSearch','search'],['fSite','site'],['fPlant','plant'],['fVendor','vendor'],['fStatus','status'],['fType','type'],['fFrom','from'],['fTo','to'],['fRule','rule']].forEach(([id,k]) => $(id).value = F[k]); }
 
 boot();
 </script>
