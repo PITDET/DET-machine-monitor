@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine Order Monitor · DET</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="api.js"></script>
+<style>
+:root{--navy:#0F2A4F;--navy2:#183A66;--blue:#1D5FBF;--ink:#0F2744;--muted:#4A5B73;--line:#D9E3F0;--line2:#E6EDF6;--bg:#F4F7FB;--tint:#E8F0FB;--warn:#9A3A00;--warnbg:#FDEBD9}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans Thai',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hidden{display:none!important}
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-box{width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px}
+.brand-lg{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-lg .logo{width:56px;height:56px;border-radius:14px}
+.brand-lg h1{margin:0;font-size:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px}
+form.card{padding:26px;display:flex;flex-direction:column;gap:14px}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:#1D3557}
+.inp{height:42px;padding:0 12px;border:1px solid #C9D6E8;border-radius:8px;background:#fff;font-size:14px;min-width:0}
+.btn{height:42px;padding:0 16px;border-radius:8px;border:1px solid var(--blue);background:#fff;color:var(--blue);font-weight:600;cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--blue);color:#fff}
+.btn:disabled{opacity:.6;cursor:wait}
+.err{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:10px 12px;font-size:13px;font-weight:500}
+.muted{color:var(--muted)}
+/* app shell */
+#app{display:flex;min-height:100vh}
+nav.side{width:224px;flex-shrink:0;background:var(--navy);color:#fff;padding:22px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px}
+.brand b{display:block;font-size:15px;line-height:1.2}.brand small{color:#A9BCD8;font-size:12px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a,.nav span{min-height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D5E0EF;text-decoration:none;font-weight:500}
+.nav a[aria-current]{background:var(--blue);color:#fff;font-weight:600}
+.nav span{opacity:.55;cursor:default}.nav span em{font-style:normal;font-size:11px;margin-left:auto}
+.asof{margin-top:auto;padding:12px;border-radius:10px;background:var(--navy2);font-size:12px;color:#D5E0EF}.asof b{color:#fff}
+.who{font-size:12px;color:#A9BCD8;padding:0 6px}
+.linkbtn{background:none;border:0;color:#D5E0EF;cursor:pointer;min-height:40px;text-align:left;padding:0 12px;font-size:13px}
+main{flex:1;min-width:0;padding:24px 28px;display:flex;flex-direction:column;gap:18px}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.head h1{margin:0;font-size:22px}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.warnbar{background:#FFF7F0;border:1px solid #F2C9A8;color:var(--warn);border-radius:10px;padding:10px 14px;font-size:13px}
+.kpis{display:flex;flex-wrap:wrap;gap:12px}
+.kpi{flex:1 1 170px;padding:12px 14px;display:flex;gap:12px;align-items:center}
+.kpi i{width:6px;align-self:stretch;border-radius:6px}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:500}.kpi .v{font-size:26px;font-weight:700;line-height:1.15}.kpi .s{font-size:12px;color:var(--muted)}
+.filters{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.frow{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.frow label.f{font-size:12px;color:var(--muted)}
+.frow .inp{height:40px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{height:36px;padding:0 14px;border-radius:999px;border:1px solid #C9D6E8;background:#fff;color:#1D3557;font-size:13px;font-weight:600;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.split{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+.tablecard{flex:999 1 560px;min-width:0;padding:16px 0 6px}
+.tablecard .th{display:flex;justify-content:space-between;align-items:baseline;padding:0 18px 10px}
+.tablecard h2,.detail h2{margin:0;font-size:17px}
+.scroll{overflow-x:auto}
+table{width:100%;min-width:960px;border-collapse:collapse;font-size:13px}
+thead th{background:#EEF4FC;color:#1D3557;text-align:left;font-weight:600;padding:0;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th button{all:unset;display:block;padding:10px 12px;cursor:pointer}
+thead th button:focus-visible{outline:2px solid var(--blue)}
+td{padding:7px 12px;border-bottom:1px solid var(--line2);white-space:nowrap}
+tr.sel td{background:var(--tint)}
+td.num{text-align:right}
+.t1b{background:none;border:0;color:var(--blue);font-weight:600;text-decoration:underline;cursor:pointer;padding:6px 0;min-height:32px}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;background:#E3EDFB;color:#1D4F99}
+.badge.done{background:var(--navy);color:#fff}.badge.mid{background:#D6F0F5;color:#0B5563}.badge.early{background:#EEF2F7;color:#3D4B5F}
+.tag{margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--warnbg);color:var(--warn);font-size:11px;font-weight:700}
+.tag.blue{background:var(--tint);color:#1D4F99}
+.empty{padding:40px 18px;text-align:center;color:var(--muted)}
+.detail{flex:1 1 340px;min-width:0;padding:18px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto}
+.dgroup{margin-top:16px}.dgroup h3{margin:0;font-size:12px;color:var(--blue);padding-bottom:6px;border-bottom:1px solid var(--line2)}
+.drow{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--line2)}
+.drow span:first-child{color:var(--muted);flex-shrink:0}.drow span:last-child{font-weight:500;text-align:right;white-space:pre-wrap}
+.x{width:40px;height:40px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;flex-shrink:0}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+@media (max-width:860px){#app{flex-direction:column}nav.side{width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center}.asof,.who{margin-top:0}main{padding:18px 14px}.detail{position:static;max-height:none}}
+@media print{nav.side,.filters,.actions,.detail,.chips,.warnbar{display:none!important}main{padding:0}table{min-width:0;font-size:10px}td{white-space:normal}.card{border:0}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login" class="hidden">
+  <div class="login-box">
+    <div class="brand-lg">
+      <div class="logo"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div>
+      <div><h1>Machine Order Monitor</h1><div class="muted">Delta Thailand · PIT/DSM</div></div>
+    </div>
+    <form class="card" id="loginForm">
+      <h2 style="margin:0;font-size:18px">Sign in</h2>
+      <div id="loginErr" class="err hidden" role="alert"></div>
+      <label class="f">Username<input class="inp" id="u" autocomplete="username" required></label>
+      <label class="f">Password<input class="inp" id="p" type="password" autocomplete="current-password" required></label>
+      <button class="btn primary" id="loginBtn" type="submit">Sign in</button>
+      <div class="muted" style="font-size:12px;text-align:center">Your session expires after 8 hours</div>
+    </form>
+    <div class="muted" style="font-size:13px;text-align:center">No account yet? Ask the system admin.</div>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <nav class="side" aria-label="Main menu">
+    <div class="brand"><div class="logo" style="width:36px;height:36px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><div><b>Machine Order</b><small>Monitor · DET</small></div></div>
+    <div class="nav">
+      <span>Dashboard <em>Phase 2</em></span>
+      <a href="#" aria-current="page">Machine List</a>
+    </div>
+    <div class="asof">Data as of <b id="asof">—</b><br>Compared with <span id="prevof">—</span></div>
+    <div class="who" id="who"></div>
+    <button class="linkbtn" id="logoutBtn" type="button">Log out</button>
+  </nav>
+
+  <main>
+    <div class="head">
+      <div><h1>Machine List</h1><div class="muted" style="font-size:13px">Filter, check each machine and export what you see</div></div>
+      <div class="actions">
+        <button class="btn" type="button" id="refreshBtn">Refresh</button>
+        <button class="btn" type="button" id="pdfBtn">Export PDF</button>
+        <button class="btn primary" type="button" id="xlsBtn">Export Excel</button>
+      </div>
+    </div>
+    <div id="warn" class="warnbar hidden" role="status"></div>
+    <div id="loading" class="card loading">Loading data…</div>
+
+    <div id="content" class="hidden" style="display:flex;flex-direction:column;gap:18px">
+      <section class="kpis" id="kpis" aria-label="Key numbers"></section>
+
+      <section class="card filters" aria-label="Filters">
+        <div class="frow">
+          <label class="f" style="flex:2 1 220px">Search<input class="inp" id="fSearch" type="search" placeholder="T1B NO., PO, PR, machine, model, equipment ID"></label>
+          <label class="f" style="flex:1 1 110px">Site<select class="inp" id="fSite"></select></label>
+          <label class="f" style="flex:1 1 110px">Plant<select class="inp" id="fPlant"></select></label>
+          <label class="f" style="flex:1 1 130px">Vendor<select class="inp" id="fVendor"></select></label>
+          <label class="f" style="flex:1 1 130px">Machine status<select class="inp" id="fStatus"></select></label>
+          <label class="f" style="flex:1 1 120px">Machine type<select class="inp" id="fType"></select></label>
+          <label class="f" style="flex:0 1 160px">Confirm ETA from<input class="inp" id="fFrom" type="date"></label>
+          <label class="f" style="flex:0 1 160px">to<input class="inp" id="fTo" type="date"></label>
+        </div>
+        <div class="frow" style="justify-content:space-between">
+          <div class="chips" id="chips"></div>
+          <div class="chips">
+            <label class="f" style="flex-direction:row;align-items:center;gap:8px">Delay rule
+              <select class="inp" id="fRule" style="height:36px"><option>ETA after Setup Date</option><option>ETA passed, not arrived</option></select></label>
+            <button class="chip" type="button" id="clearBtn" style="border:0;color:var(--blue)">Clear all filters</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="split">
+        <section class="card tablecard">
+          <div class="th"><h2>Machines</h2><span class="muted" id="count" style="font-size:13px"></span></div>
+          <div class="scroll"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
+          <div id="empty" class="empty hidden">No machines match these filters. Clear a filter to see more.</div>
+        </section>
+        <aside class="card detail" id="detail" aria-live="polite"></aside>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------- column positions in the Excel file (0-based) ---------- */
+const C = {t1b:0,month:1,reqDate:2,item:3,year:4,site:5,plant:6,factory:7,name:8,mro:9,model:10,poFlag:11,qty:12,unit:13,contract:14,type:15,setup:16,whole:17,line:18,pms:19,d0:20,prNo:21,prItem:22,poNo:23,poItem:24,poQty:25,sys:26,sysRemark:27,flowJudge:28,flowStatus:29,prCat:30,poCat:31,d3:32,d4:33,vcode:34,vendor:35,devId:36,status:37,progress:38,etd:39,eta:40,pc:41};
+const LABEL = ['T1B NO.','Month','Request date','Item no.','Year','MFG site','Plant','Factory','Machine name','MRO PN','Model No','PO','Demand qty','Receiving unit','Suggested contracting unit','Machine type','Setup Date','DSM whole line?','Whole line name','PMS no.','D0 form no.','PR NO','PR item','PO NO','PO item','PO qty','System status (MRO-ANTA)','PR/PO system remark','Order flow check','Order flow status','PR link no.','PO link no.','D3 form no.','D4 form no.','PO vendor code','PO vendor','Equipment ID','Machine status','Progress detail','Confirm ETD','Confirm ETA','PC remark'];
+const GROUPS = [
+  ['Machine',[C.name,C.mro,C.model,C.type,C.qty,C.devId]],
+  ['Location',[C.site,C.plant,C.factory,C.unit,C.contract]],
+  ['Dates',[C.month,C.year,C.reqDate,C.setup,C.etd,C.eta,'prevEta']],
+  ['PR / PO',[C.prNo,C.prItem,C.poNo,C.poItem,C.poQty,C.poFlag,C.prCat,C.poCat,C.vcode,C.vendor]],
+  ['Status',[C.status,C.sys,C.flowStatus,C.flowJudge,C.sysRemark]],
+  ['Whole line & forms',[C.whole,C.line,C.pms,C.d0,C.d3,C.d4]],
+  ['Remarks',[C.progress,C.pc]]
+];
+const COLS = [['t1b','T1B NO.'],['site','Site'],['plant','Plant'],['name','Machine name'],['model','Model'],['qty','Qty'],['vendor','Vendor'],['status','Status'],['setup','Setup Date'],['eta','Confirm ETA'],['poNo','PO NO']];
+
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = new Date().toLocaleDateString('sv-SE');           // yyyy-mm-dd in local time
+const in14 = new Date(Date.now() + 14 * 864e5).toLocaleDateString('sv-SE');
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD = d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? `${+d.slice(8,10)} ${MON[+d.slice(5,7)-1]} ${d.slice(0,4)}` : (d || '—');
+const typeLabel = t => t === '新机' ? 'New (新机)' : t === '复购机' ? 'Repeat (复购机)' : (t || '—');
+
+let D = null, rows = [], sel = null, sortKey = null, sortDir = 1;
+const F = {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all',rule:'ETA after Setup Date'};
+
+/* ---------- boot ---------- */
+async function boot() {
+  if (!Api.getToken()) return showLogin();
+  showApp(); await load();
+}
+function showLogin(msg) { $('app').classList.add('hidden'); $('login').classList.remove('hidden'); if (msg) loginError(msg); $('u').focus(); }
+function showApp() { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); }
+function loginError(m) { const e = $('loginErr'); e.textContent = m; e.classList.remove('hidden'); }
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('loginErr').classList.add('hidden'); $('loginBtn').disabled = true; $('loginBtn').textContent = 'Signing in…';
+  try {
+    const r = await Api.login($('u').value, $('p').value);
+    if (r.ok) { $('p').value = ''; showApp(); await load(); }
+    else loginError(r.error === 'LOCKED' ? `Too many attempts. Try again in ${r.minutes} minutes.` : 'Username or password is incorrect.');
+  } catch (err) { loginError('Cannot reach the server. Check your internet connection and try again.'); }
+  $('loginBtn').disabled = false; $('loginBtn').textContent = 'Sign in';
+});
+$('logoutBtn').onclick = async () => { await Api.logout(); D = null; showLogin(); };
+$('refreshBtn').onclick = () => load();
+
+async function load() {
+  $('loading').classList.remove('hidden'); $('content').classList.add('hidden');
+  let r;
+  try { r = await Api.getData(); } catch (e) { $('loading').textContent = 'Cannot reach the server. Press Refresh to try again.'; return; }
+  if (!r.ok) {
+    if (r.error === 'SESSION_EXPIRED') return showLogin('Your session has ended. Sign in again.');
+    $('loading').textContent = 'The server returned an error: ' + (r.detail || r.error); return;
+  }
+  D = r; prepare(); $('loading').classList.add('hidden'); $('content').classList.remove('hidden'); render();
+}
+
+function prepare() {
+  const useItem = D.keyMode === 'T1B+Item';
+  rows = D.rows.map((a, i) => {
+    const key = useItem ? a[C.t1b] + '|' + a[C.item] : String(a[C.t1b]);
+    const p = D.previous[key];
+    return {i, a, key, t1b:a[C.t1b], site:a[C.site], plant:a[C.plant], name:a[C.name], model:a[C.model], qty:+a[C.qty]||0,
+      vendor:a[C.vendor], status:String(a[C.status]||''), type:a[C.type], setup:a[C.setup]||'', eta:a[C.eta]||'', poNo:a[C.poNo]||'',
+      prevEta: p ? (p.eta||'') : null, isNew: !p};
+  });
+  if (D.delayRule) F.rule = D.delayRule;
+  $('fRule').value = F.rule;
+  $('asof').textContent = fmtD(D.dataAsOf); $('prevof').textContent = fmtD(D.previousAsOf);
+  $('who').textContent = `Signed in as ${D.user.name} (${D.user.role})`;
+  $('warn').classList.toggle('hidden', !D.warnings.length);
+  $('warn').innerHTML = D.warnings.map(esc).join('<br>');
+  const opts = (k, all) => `<option value="">${all}</option>` + [...new Set(rows.map(r => r[k]).filter(Boolean))].sort().map(v => `<option value="${esc(v)}">${esc(k==='type'?typeLabel(v):v)}</option>`).join('');
+  $('fSite').innerHTML = opts('site','All'); $('fPlant').innerHTML = opts('plant','All'); $('fVendor').innerHTML = opts('vendor','All');
+  $('fStatus').innerHTML = opts('status','All'); $('fType').innerHTML = opts('type','All');
+}
+
+/* ---------- logic ---------- */
+const info = s => D.statusMap[s] || {};
+const isOpen = r => !info(r.status).delivered;
+const isDelay = r => r.eta && isOpen(r) && (F.rule === 'ETA after Setup Date' ? r.eta > r.setup : r.eta < today);
+const etaChanged = r => r.prevEta !== null && r.prevEta !== r.eta;
+const QUICK = [['all','All',()=>true],['delay','Delay',isDelay],['eta14','ETA in 14 days',r=>r.eta&&isOpen(r)&&r.eta>=today&&r.eta<=in14],['changed','ETA changed',etaChanged],['nopo','No PO yet',r=>!r.poNo]];
+
+function filtered() {
+  const q = F.search.trim().toLowerCase(), qf = QUICK.find(x => x[0] === F.quick)[2];
+  let list = rows.filter(r =>
+    (!F.site || r.site === F.site) && (!F.plant || r.plant === F.plant) && (!F.vendor || r.vendor === F.vendor) &&
+    (!F.status || r.status === F.status) && (!F.type || r.type === F.type) &&
+    (!F.from || (r.eta && r.eta >= F.from)) && (!F.to || (r.eta && r.eta <= F.to)) && qf(r) &&
+    (!q || [r.t1b, r.poNo, r.a[C.prNo], r.name, r.model, r.a[C.devId], r.vendor].join(' ').toLowerCase().includes(q)));
+  if (sortKey) list = list.slice().sort((x, y) => (x[sortKey] > y[sortKey] ? 1 : x[sortKey] < y[sortKey] ? -1 : 0) * sortDir);
+  return list;
+}
+
+/* ---------- render ---------- */
+function badge(s) {
+  const m = info(s); const cls = m.accepted ? 'done' : m.delivered ? 'mid' : m.ordered ? '' : 'early';
+  return `<span class="badge ${cls}">${esc(s || '—')}</span>`;
+}
+function render() {
+  const list = filtered(), sum = l => l.reduce((t, r) => t + r.qty, 0);
+  const k = [
+    ['Machines shown', list.length, `Total demand qty ${sum(list)}`, '#1D5FBF', 'var(--ink)'],
+    ['Delay', list.filter(isDelay).length, 'Rule: ' + F.rule, '#EA7A1F', 'var(--warn)'],
+    ['ETA in 14 days', list.filter(QUICK[2][2]).length, 'Until ' + fmtD(in14), '#7FA3D6', 'var(--blue)'],
+    ['ETA changed', list.filter(etaChanged).length, 'vs ' + fmtD(D.previousAsOf), '#F2B48A', 'var(--warn)']
+  ];
+  $('kpis').innerHTML = k.map(([l, v, s, bar, col]) => `<div class="card kpi"><i style="background:${bar}"></i><div><div class="l">${l}</div><div class="v" style="color:${col}">${v}</div><div class="s">${esc(s)}</div></div></div>`).join('');
+  $('chips').innerHTML = QUICK.map(([key, l]) => `<button class="chip" type="button" aria-pressed="${F.quick===key}" data-q="${key}">${l}</button>`).join('');
+  $('thead').innerHTML = COLS.map(([key, l]) => `<th${key==='qty'?' style="text-align:right"':''}><button type="button" data-sort="${key}">${l}${sortKey===key?(sortDir>0?' ▲':' ▼'):''}</button></th>`).join('');
+  $('count').textContent = `${list.length} of ${rows.length} machines`;
+  $('tbody').innerHTML = list.map(r => {
+    const ch = etaChanged(r) && r.prevEta && r.eta ? Math.round((new Date(r.eta) - new Date(r.prevEta)) / 864e5) : 0;
+    return `<tr class="${sel===r.i?'sel':''}">
+      <td><button class="t1b" type="button" data-i="${r.i}">${esc(r.t1b)}</button>${r.isNew?'<span class="tag blue">New</span>':''}</td>
+      <td>${esc(r.site)}</td><td>${esc(r.plant)}</td><td>${esc(r.name)}</td><td>${esc(r.model)}</td><td class="num">${r.qty}</td>
+      <td>${esc(r.vendor||'—')}</td><td>${badge(r.status)}</td><td>${fmtD(r.setup)}</td>
+      <td>${fmtD(r.eta)}${isDelay(r)?'<span class="tag">Delay</span>':''}${ch?`<span class="tag ${ch<0?'blue':''}">${ch>0?'+':''}${ch}d</span>`:''}</td>
+      <td>${esc(r.poNo||'—')}</td></tr>`;
+  }).join('');
+  $('empty').classList.toggle('hidden', list.length > 0);
+  renderDetail();
+}
+function renderDetail() {
+  const r = rows.find(x => x.i === sel);
+  if (!r) { $('detail').innerHTML = `<div class="empty" style="padding:30px 6px"><b style="color:var(--ink)">Machine details</b><br>Click a T1B NO. in the table to see every field.</div>`; return; }
+  const val = c => c === 'prevEta' ? (r.prevEta === null ? 'Not in last week\'s file' : fmtD(r.prevEta)) :
+    [C.reqDate, C.setup, C.etd, C.eta].includes(c) ? fmtD(r.a[c]) : c === C.type ? typeLabel(r.a[c]) : (r.a[c] === '' || r.a[c] == null ? '—' : r.a[c]);
+  $('detail').innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+      <div><div class="muted" style="font-size:12px">${esc(r.t1b)} · Item ${esc(r.a[C.item])}</div><h2 style="font-size:19px">${esc(r.name)}</h2>
+      <div style="margin-top:6px">${badge(r.status)}${isDelay(r)?'<span class="tag">Delay</span>':''}</div></div>
+      <button class="x" type="button" id="closeDetail" aria-label="Close details">✕</button></div>` +
+    GROUPS.map(([g, cols]) => `<div class="dgroup"><h3>${g}</h3>${cols.map(c => `<div class="drow"><span>${c==='prevEta'?'ETA last week':LABEL[c]}</span><span>${esc(val(c))}</span></div>`).join('')}</div>`).join('');
+  $('closeDetail').onclick = () => { sel = null; render(); };
+}
+
+/* ---------- events ---------- */
+[['fSearch','search','input'],['fSite','site'],['fPlant','plant'],['fVendor','vendor'],['fStatus','status'],['fType','type'],['fFrom','from'],['fTo','to'],['fRule','rule']]
+  .forEach(([id, key, ev]) => $(id).addEventListener(ev || 'change', e => { F[key] = e.target.value; render(); }));
+$('chips').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) { F.quick = b.dataset.q; render(); } });
+$('thead').addEventListener('click', e => { const b = e.target.closest('[data-sort]'); if (!b) return; const k = b.dataset.sort; sortDir = sortKey === k ? -sortDir : 1; sortKey = k; render(); });
+$('tbody').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) { sel = +b.dataset.i; render(); } });
+$('clearBtn').onclick = () => { Object.assign(F, {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all'}); ['fSearch','fSite','fPlant','fVendor','fStatus','fType','fFrom','fTo'].forEach(id => $(id).value = ''); render(); };
+$('xlsBtn').onclick = () => {
+  const list = filtered(); const ws = XLSX.utils.aoa_to_sheet([D.headers, ...list.map(r => r.a)]);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Machines');
+  XLSX.writeFile(wb, `DET_Machine_List_${today}.xlsx`);
+};
+$('pdfBtn').onclick = () => window.print();
+
+boot();
+</script>
+</body>
+</html>
