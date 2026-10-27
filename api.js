@@ -29,9 +29,9 @@ const Api = (() => {
       try { await call({ action: 'logout', token }); } catch (e) { /* ignore */ }
     },
 
-    /** Returns {ok, user, dataAsOf, previousAsOf, delayRule, keyMode, statusMap, headers, rows, previous, warnings} */
-    async getData() {
-      const r = await call({ action: 'getData', token: sessionStorage.getItem(TOKEN_KEY) });
+    /** module: 'MO' (Machine Order). Returns {ok, user, dataAsOf, previousAsOf, delayRule, keyMode, statusMap, headers, rows, previous, warnings} */
+    async getData(module = 'MO') {
+      const r = await call({ action: 'getData', module, token: sessionStorage.getItem(TOKEN_KEY) });
       if (!r.ok && r.error === 'SESSION_EXPIRED') sessionStorage.removeItem(TOKEN_KEY);
       return r;
     }
