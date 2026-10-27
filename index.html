@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DET Portal</title>
+<title>PIT Portal</title>
 <link rel="icon" type="image/svg+xml" href="logo-mark.svg">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -157,9 +157,8 @@ td.num{text-align:right}
 @media print{body.print-report>*:not(#report){display:none!important}body.print-report #report{position:static;background:none;padding:0}body.print-report .noprint{display:none!important}body.print-report .sheet{width:100%}}
 /* logo */
 .logo-lg{height:56px;width:auto;align-self:center}
-.logochip{display:inline-flex;align-items:center;background:#fff;border-radius:8px;padding:6px 10px;flex-shrink:0}
-.logochip img{display:block;width:auto}
-.sidebrand{display:flex;flex-direction:column;gap:10px}.sidebrand .logochip{align-self:flex-start}
+.vsep{width:1px;height:26px;background:rgba(255,255,255,.28)}
+.sidebrand{display:flex;flex-direction:column;gap:12px}
 .sidebrand b{display:block;font-size:15px;line-height:1.2}.sidebrand small{color:#A9BCD8;font-size:12px}
 /* home */
 #home{min-height:100vh}
@@ -204,7 +203,7 @@ button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.1
   <div class="login-box">
     <div class="brand-lg">
       <img src="logo.svg" alt="Delta" class="logo-lg">
-      <div><h1>Machine Order Monitor</h1><div class="muted">Delta Thailand · PIT/DSM</div></div>
+      <div><h1>PIT Portal</h1><div class="muted">Delta Thailand · PIT/DSM</div></div>
     </div>
     <form class="card" id="loginForm">
       <h2 style="margin:0;font-size:18px">Sign in</h2>
@@ -221,7 +220,7 @@ button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.1
 <!-- HOME -->
 <section id="home" class="hidden">
   <header class="topbar"><div class="in">
-    <div class="brand"><span class="logochip"><img src="logo.svg" alt="Delta" style="height:24px"></span><div><b>DET Portal</b><small>PIT/DSM · Delta Thailand</small></div></div>
+    <div class="brand" style="gap:14px"><img src="logo-white.svg" alt="Delta" style="height:24px;width:auto;display:block"><span class="vsep" aria-hidden="true"></span><div><b>PIT Portal</b><small>PIT/DSM · Delta Thailand</small></div></div>
     <div style="display:flex;align-items:center;gap:14px"><span class="who2" id="homeWho"></span><button class="darkbtn" type="button" data-logout>Log out</button></div>
   </div></header>
   <div class="homewrap">
@@ -233,7 +232,7 @@ button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.1
 <!-- APP: MACHINE ORDER -->
 <div id="app" class="hidden">
   <nav class="side" aria-label="Main menu">
-    <div class="sidebrand"><span class="logochip" style="padding:8px 12px"><img src="logo.svg" alt="Delta" style="height:20px"></span><div style="padding:0 6px"><b>Machine Order</b><small>Monitor · DET</small></div></div>
+    <div class="sidebrand"><img src="logo-white.svg" alt="Delta" style="height:20px;width:auto;display:block;margin:2px 6px 0;align-self:flex-start"><div style="padding:0 6px"><b>Machine Order</b><small>Monitor · DET</small></div></div>
     <div class="nav">
       <button type="button" id="toHome">← Home</button>
       <button type="button" data-view="dash" aria-current="page">Dashboard</button>
