@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DET Portal</title>
+<link rel="icon" type="image/svg+xml" href="logo-mark.svg">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -153,6 +155,12 @@ td.num{text-align:right}
 .nav button[aria-current=page]{background:var(--blue);color:#fff;font-weight:600}
 .nav button:focus-visible{outline:2px solid #fff}
 @media print{body.print-report>*:not(#report){display:none!important}body.print-report #report{position:static;background:none;padding:0}body.print-report .noprint{display:none!important}body.print-report .sheet{width:100%}}
+/* logo */
+.logo-lg{height:56px;width:auto;align-self:center}
+.logochip{display:inline-flex;align-items:center;background:#fff;border-radius:8px;padding:6px 10px;flex-shrink:0}
+.logochip img{display:block;width:auto}
+.sidebrand{display:flex;flex-direction:column;gap:10px}.sidebrand .logochip{align-self:flex-start}
+.sidebrand b{display:block;font-size:15px;line-height:1.2}.sidebrand small{color:#A9BCD8;font-size:12px}
 /* home */
 #home{min-height:100vh}
 .topbar{background:var(--navy);color:#fff}
@@ -195,7 +203,7 @@ button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.1
 <section id="login" class="hidden">
   <div class="login-box">
     <div class="brand-lg">
-      <div class="logo"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div>
+      <img src="logo.svg" alt="Delta" class="logo-lg">
       <div><h1>Machine Order Monitor</h1><div class="muted">Delta Thailand · PIT/DSM</div></div>
     </div>
     <form class="card" id="loginForm">
@@ -213,7 +221,7 @@ button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.1
 <!-- HOME -->
 <section id="home" class="hidden">
   <header class="topbar"><div class="in">
-    <div class="brand"><div class="logo" style="width:36px;height:36px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><div><b>DET Portal</b><small>PIT/DSM · Delta Thailand</small></div></div>
+    <div class="brand"><span class="logochip"><img src="logo.svg" alt="Delta" style="height:24px"></span><div><b>DET Portal</b><small>PIT/DSM · Delta Thailand</small></div></div>
     <div style="display:flex;align-items:center;gap:14px"><span class="who2" id="homeWho"></span><button class="darkbtn" type="button" data-logout>Log out</button></div>
   </div></header>
   <div class="homewrap">
@@ -225,7 +233,7 @@ button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.1
 <!-- APP: MACHINE ORDER -->
 <div id="app" class="hidden">
   <nav class="side" aria-label="Main menu">
-    <div class="brand"><div class="logo" style="width:36px;height:36px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><div><b>Machine Order</b><small>Monitor · DET</small></div></div>
+    <div class="sidebrand"><span class="logochip" style="padding:8px 12px"><img src="logo.svg" alt="Delta" style="height:20px"></span><div style="padding:0 6px"><b>Machine Order</b><small>Monitor · DET</small></div></div>
     <div class="nav">
       <button type="button" id="toHome">← Home</button>
       <button type="button" data-view="dash" aria-current="page">Dashboard</button>
