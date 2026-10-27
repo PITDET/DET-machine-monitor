@@ -3,12 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Machine Order Monitor · DET</title>
+<title>DET Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="api.js"></script>
-<script src="dashboard.js"></script>
 <style>
 :root{--navy:#0F2A4F;--navy2:#183A66;--blue:#1D5FBF;--ink:#0F2744;--muted:#4A5B73;--line:#D9E3F0;--line2:#E6EDF6;--bg:#F4F7FB;--tint:#E8F0FB;--warn:#9A3A00;--warnbg:#FDEBD9}
 *{box-sizing:border-box}
@@ -155,6 +153,38 @@ td.num{text-align:right}
 .nav button[aria-current=page]{background:var(--blue);color:#fff;font-weight:600}
 .nav button:focus-visible{outline:2px solid #fff}
 @media print{body.print-report>*:not(#report){display:none!important}body.print-report #report{position:static;background:none;padding:0}body.print-report .noprint{display:none!important}body.print-report .sheet{width:100%}}
+/* home */
+#home{min-height:100vh}
+.topbar{background:var(--navy);color:#fff}
+.topbar .in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.topbar .who2{font-size:13px;color:#D5E0EF}.topbar .who2 b{color:#fff}
+.darkbtn{min-height:40px;padding:0 14px;border-radius:8px;background:var(--navy2);color:#fff;border:0;cursor:pointer;font-weight:500}
+.homewrap{max-width:1180px;margin:0 auto;padding:40px 24px;display:flex;flex-direction:column;gap:26px}
+.homewrap h1{margin:0;font-size:26px}
+.mods{display:flex;flex-wrap:wrap;gap:18px}
+.mod{flex:1 1 320px;max-width:100%;min-height:220px;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;text-align:left}
+button.mod{background:#fff;border:1px solid var(--line);cursor:pointer;font:inherit;color:inherit;transition:border-color .15s,box-shadow .15s}
+button.mod:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(15,39,68,.10)}
+.mod .ic{width:48px;height:48px;border-radius:12px;background:var(--tint);display:flex;align-items:center;justify-content:center}
+.mod .meta{display:flex;flex-wrap:wrap;gap:18px;margin-top:auto;padding-top:12px;border-top:1px solid var(--line2);font-size:12px;color:var(--muted)}
+.mod .meta b{color:var(--ink)}.mod .meta b.warn{color:var(--warn)}
+.slot{border:1.5px dashed #C9D6E8;background:#F9FBFD;align-items:center;justify-content:center;color:#6B7C93;gap:6px}
+/* pop-up */
+#pop{z-index:40}
+.popsheet{width:900px;max-width:100%;max-height:calc(100vh - 80px);overflow-y:auto;background:#fff;border-radius:14px;padding:22px 24px 0;display:flex;flex-direction:column;gap:16px}
+.pophead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pophead h2{margin:2px 0 6px;font-size:22px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tags .tag{margin-left:0}
+.keystrip{display:flex;flex-wrap:wrap;gap:10px}
+.keystrip div{flex:1 1 150px;background:#F4F7FB;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column}
+.keystrip b{font-size:16px}
+.popgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 28px}
+.popgrid .dgroup{margin-top:6px}
+.remark{padding:8px 0;border-bottom:1px dashed var(--line2);font-size:13px}.remark div{white-space:pre-wrap;font-weight:500;margin-top:2px}
+.popfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0 16px;border-top:1px solid var(--line2);position:sticky;bottom:0;background:#fff;margin-top:auto}
+.popfoot .btn:disabled{opacity:.4;cursor:default}
+.linkish{background:none;border:0;padding:0;color:var(--blue);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+@media (max-width:700px){.popgrid{grid-template-columns:minmax(0,1fr)}.popsheet{padding:18px 16px}}
 @media (max-width:860px){#app{flex-direction:column}nav.side{width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center}.asof,.who{margin-top:0}main{padding:18px 14px}.detail{position:static;max-height:none}}
 @media print{nav.side,.filters,.actions,.detail,.chips,.warnbar{display:none!important}main{padding:0}table{min-width:0;font-size:10px}td{white-space:normal}.card{border:0}}
 </style>
@@ -180,17 +210,30 @@ td.num{text-align:right}
   </div>
 </section>
 
-<!-- APP -->
+<!-- HOME -->
+<section id="home" class="hidden">
+  <header class="topbar"><div class="in">
+    <div class="brand"><div class="logo" style="width:36px;height:36px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><div><b>DET Portal</b><small>PIT/DSM · Delta Thailand</small></div></div>
+    <div style="display:flex;align-items:center;gap:14px"><span class="who2" id="homeWho"></span><button class="darkbtn" type="button" data-logout>Log out</button></div>
+  </div></header>
+  <div class="homewrap">
+    <div><h1>Choose a module</h1><div class="muted">Pick the data you want to work with today</div></div>
+    <div class="mods" id="mods"></div>
+  </div>
+</section>
+
+<!-- APP: MACHINE ORDER -->
 <div id="app" class="hidden">
   <nav class="side" aria-label="Main menu">
     <div class="brand"><div class="logo" style="width:36px;height:36px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><div><b>Machine Order</b><small>Monitor · DET</small></div></div>
     <div class="nav">
+      <button type="button" id="toHome">← Home</button>
       <button type="button" data-view="dash" aria-current="page">Dashboard</button>
       <button type="button" data-view="list">Machine List</button>
     </div>
     <div class="asof">Data as of <b id="asof">—</b><br>Compared with <span id="prevof">—</span></div>
     <div class="who" id="who"></div>
-    <button class="linkbtn" id="logoutBtn" type="button">Log out</button>
+    <button class="linkbtn" data-logout type="button">Log out</button>
   </nav>
 
   <main>
@@ -284,179 +327,88 @@ td.num{text-align:right}
           <div class="scroll"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
           <div id="empty" class="empty hidden">No machines match these filters. Clear a filter to see more.</div>
         </section>
-        <aside class="card detail" id="detail" aria-live="polite"></aside>
       </div>
     </div>
     </section>
   </main>
   <div id="report" class="modal hidden" role="dialog" aria-label="Weekly report"><div class="sheet" id="reportBody"></div></div>
+  <div id="pop" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="popTitle"><div class="popsheet" id="popBody"></div></div>
 </div>
 
 <script>
-/* ---------- column positions in the Excel file (0-based) ---------- */
-const C = {t1b:0,month:1,reqDate:2,item:3,year:4,site:5,plant:6,factory:7,name:8,mro:9,model:10,poFlag:11,qty:12,unit:13,contract:14,type:15,setup:16,whole:17,line:18,pms:19,d0:20,prNo:21,prItem:22,poNo:23,poItem:24,poQty:25,sys:26,sysRemark:27,flowJudge:28,flowStatus:29,prCat:30,poCat:31,d3:32,d4:33,vcode:34,vendor:35,devId:36,status:37,progress:38,etd:39,eta:40,pc:41};
-const LABEL = ['T1B NO.','Month','Request date','Item no.','Year','MFG site','Plant','Factory','Machine name','MRO PN','Model No','PO','Demand qty','Receiving unit','Suggested contracting unit','Machine type','Setup Date','DSM whole line?','Whole line name','PMS no.','D0 form no.','PR NO','PR item','PO NO','PO item','PO qty','System status (MRO-ANTA)','PR/PO system remark','Order flow check','Order flow status','PR link no.','PO link no.','D3 form no.','D4 form no.','PO vendor code','PO vendor','Equipment ID','Machine status','Progress detail','Confirm ETD','Confirm ETA','PC remark'];
-const GROUPS = [
-  ['Machine',[C.name,C.mro,C.model,C.type,C.qty,C.devId]],
-  ['Location',[C.site,C.plant,C.factory,C.unit,C.contract]],
-  ['Dates',[C.month,C.year,C.reqDate,C.setup,C.etd,C.eta,'prevEta']],
-  ['PR / PO',[C.prNo,C.prItem,C.poNo,C.poItem,C.poQty,C.poFlag,C.prCat,C.poCat,C.vcode,C.vendor]],
-  ['Status',[C.status,C.sys,C.flowStatus,C.flowJudge,C.sysRemark]],
-  ['Whole line & forms',[C.whole,C.line,C.pms,C.d0,C.d3,C.d4]],
-  ['Remarks',[C.progress,C.pc]]
-];
-const COLS = [['t1b','T1B NO.'],['site','Site'],['plant','Plant'],['name','Machine name'],['model','Model'],['qty','Qty'],['vendor','Vendor'],['status','Status'],['setup','Setup Date'],['eta','Confirm ETA'],['poNo','PO NO']];
-
+/* ---------- shared helpers (all modules) ---------- */
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const today = new Date().toLocaleDateString('sv-SE');           // yyyy-mm-dd in local time
-const in14 = new Date(Date.now() + 14 * 864e5).toLocaleDateString('sv-SE');
+const today = new Date().toLocaleDateString('sv-SE');
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const fmtD = d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? `${+d.slice(8,10)} ${MON[+d.slice(5,7)-1]} ${d.slice(0,4)}` : (d || '—');
-const typeLabel = t => t === '新机' ? 'New (新机)' : t === '复购机' ? 'Repeat (复购机)' : (t || '—');
+</script>
+<script src="api.js"></script>
+<script src="mo.js"></script>
+<script src="mo-dashboard.js"></script>
+<script>
+/* ---------- portal: login → home → module ---------- */
+const MODULES = [
+  { id: 'MO', name: 'Machine Order', desc: 'Track machine orders from Delta Global: incoming, delays and progress',
+    icon: '<path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/>' }
+];
+const SLOTS = 5;
+let moPromise = null;
 
-let D = null, rows = [], sel = null, sortKey = null, sortDir = 1, view = 'dash';
-const F = {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all',rule:'ETA after Setup Date'};
-
-/* ---------- boot ---------- */
-async function boot() {
-  if (!Api.getToken()) return showLogin();
-  showApp(); await load();
-}
-function showLogin(msg) { $('app').classList.add('hidden'); $('login').classList.remove('hidden'); if (msg) loginError(msg); $('u').focus(); }
-function showApp() { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); }
+function show(id) { ['login','home','app'].forEach(x => $(x).classList.toggle('hidden', x !== id)); window.scrollTo(0, 0); }
 function loginError(m) { const e = $('loginErr'); e.textContent = m; e.classList.remove('hidden'); }
+function showLogin(msg) { show('login'); if (msg) loginError(msg); $('u').focus(); }
+
+function renderHome() {
+  const mo = MODULES[0];
+  const stats = D ? `<span>Data as of <b>${esc(fmtD(D.dataAsOf))}</b></span><span><b>${rows.length}</b> machines</span><span><b class="warn">${rows.filter(isAlert).length}</b> alerts</span>`
+                  : '<span>Loading data…</span>';
+  $('homeWho').innerHTML = D ? `Signed in as <b>${esc(D.user.name)}</b>` : '';
+  $('mods').innerHTML = `<button class="mod" type="button" data-mod="${mo.id}">
+      <span style="display:flex;justify-content:space-between;align-items:flex-start"><span class="ic"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1D5FBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${mo.icon}</svg></span><span class="pill ok" style="margin:0">Live</span></span>
+      <span><span style="display:block;font-size:18px;font-weight:700">${mo.name}</span><span class="muted" style="font-size:13px">${mo.desc}</span></span>
+      <span class="meta">${stats}</span></button>` +
+    Array.from({ length: SLOTS }, (_, k) => `<div class="mod slot"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9DB0C8" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span style="font-size:13px;font-weight:500">Module slot ${k + 2}</span></div>`).join('');
+}
+
+async function loadMO() {
+  moPromise = moLoad().then(r => {
+    if (!r.ok) {
+      if (r.error === 'SESSION_EXPIRED') showLogin('Your session has ended. Sign in again.');
+      else $('loading').textContent = 'The server returned an error: ' + (r.detail || r.error);
+      return false;
+    }
+    $('loading').classList.add('hidden'); render(); renderDash(); renderHome(); return true;
+  }).catch(() => { $('loading').textContent = 'Cannot reach the server. Press Refresh to try again.'; renderHome(); return false; });
+  return moPromise;
+}
+
+async function openModule(id) {
+  if (id !== 'MO') return;
+  show('app'); go('dash');
+  if (!D) { $('loading').classList.remove('hidden'); await moPromise; }
+}
+
+async function goHome() { show('home'); renderHome(); }
 
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault(); $('loginErr').classList.add('hidden'); $('loginBtn').disabled = true; $('loginBtn').textContent = 'Signing in…';
   try {
     const r = await Api.login($('u').value, $('p').value);
-    if (r.ok) { $('p').value = ''; showApp(); await load(); }
+    if (r.ok) { $('p').value = ''; goHome(); loadMO(); }
     else loginError(r.error === 'LOCKED' ? `Too many attempts. Try again in ${r.minutes} minutes.` : 'Username or password is incorrect.');
   } catch (err) { loginError('Cannot reach the server. Check your internet connection and try again.'); }
   $('loginBtn').disabled = false; $('loginBtn').textContent = 'Sign in';
 });
-$('logoutBtn').onclick = async () => { await Api.logout(); D = null; showLogin(); };
-$('refreshBtn').onclick = () => load();
+document.addEventListener('click', async e => {
+  if (e.target.closest('[data-logout]')) { await Api.logout(); D = null; rows = []; showLogin(); }
+  const m = e.target.closest('[data-mod]'); if (m) openModule(m.dataset.mod);
+});
+$('toHome').onclick = goHome;
+$('refreshBtn').onclick = async () => { $('loading').textContent = 'Loading data…'; $('loading').classList.remove('hidden'); await loadMO(); };
 
-async function load() {
-  $('loading').classList.remove('hidden'); $('viewDash').classList.add('hidden'); $('viewList').classList.add('hidden');
-  let r;
-  try { r = await Api.getData(); } catch (e) { $('loading').textContent = 'Cannot reach the server. Press Refresh to try again.'; return; }
-  if (!r.ok) {
-    if (r.error === 'SESSION_EXPIRED') return showLogin('Your session has ended. Sign in again.');
-    $('loading').textContent = 'The server returned an error: ' + (r.detail || r.error); return;
-  }
-  D = r; prepare(); $('loading').classList.add('hidden'); go(view); render(); renderDash();
-}
-
-function prepare() {
-  const useItem = D.keyMode === 'T1B+Item';
-  rows = D.rows.map((a, i) => {
-    const key = useItem ? a[C.t1b] + '|' + a[C.item] : String(a[C.t1b]);
-    const p = D.previous[key];
-    return {i, a, key, t1b:a[C.t1b], site:a[C.site], plant:a[C.plant], name:a[C.name], model:a[C.model], qty:+a[C.qty]||0,
-      vendor:a[C.vendor], status:String(a[C.status]||''), type:a[C.type], setup:a[C.setup]||'', eta:a[C.eta]||'', poNo:a[C.poNo]||'',
-      prevEta: p ? (p.eta||'') : null, isNew: !p};
-  });
-  if (D.delayRule) F.rule = D.delayRule;
-  $('fRule').value = F.rule;
-  $('asof').textContent = fmtD(D.dataAsOf); $('prevof').textContent = fmtD(D.previousAsOf);
-  $('who').textContent = `Signed in as ${D.user.name} (${D.user.role})`;
-  $('warn').classList.toggle('hidden', !D.warnings.length);
-  $('warn').innerHTML = D.warnings.map(esc).join('<br>');
-  const opts = (k, all) => `<option value="">${all}</option>` + [...new Set(rows.map(r => r[k]).filter(Boolean))].sort().map(v => `<option value="${esc(v)}">${esc(k==='type'?typeLabel(v):v)}</option>`).join('');
-  $('fSite').innerHTML = opts('site','All'); $('fPlant').innerHTML = opts('plant','All'); $('fVendor').innerHTML = opts('vendor','All');
-  $('fStatus').innerHTML = opts('status','All'); $('fType').innerHTML = opts('type','All');
-}
-
-/* ---------- logic ---------- */
-const info = s => D.statusMap[s] || {};
-const isOpen = r => !info(r.status).delivered;
-const isDelay = r => r.eta && isOpen(r) && (F.rule === 'ETA after Setup Date' ? r.eta > r.setup : r.eta < today);
-const etaChanged = r => r.prevEta !== null && r.prevEta !== r.eta;
-const QUICK = [['all','All',()=>true],['delay','Delay',isDelay],['eta14','ETA in 14 days',r=>r.eta&&isOpen(r)&&r.eta>=today&&r.eta<=in14],['changed','ETA changed',etaChanged],['nopo','No PO yet',r=>!r.poNo]];
-
-function filtered() {
-  const q = F.search.trim().toLowerCase(), qf = QUICK.find(x => x[0] === F.quick)[2];
-  let list = rows.filter(r =>
-    (!F.site || r.site === F.site) && (!F.plant || r.plant === F.plant) && (!F.vendor || r.vendor === F.vendor) &&
-    (!F.status || r.status === F.status) && (!F.type || r.type === F.type) &&
-    (!F.from || (r.eta && r.eta >= F.from)) && (!F.to || (r.eta && r.eta <= F.to)) && qf(r) &&
-    (!q || [r.t1b, r.poNo, r.a[C.prNo], r.name, r.model, r.a[C.devId], r.vendor].join(' ').toLowerCase().includes(q)));
-  if (sortKey) list = list.slice().sort((x, y) => (x[sortKey] > y[sortKey] ? 1 : x[sortKey] < y[sortKey] ? -1 : 0) * sortDir);
-  return list;
-}
-
-/* ---------- render ---------- */
-function badge(s) {
-  const m = info(s); const cls = m.accepted ? 'done' : m.delivered ? 'mid' : m.ordered ? '' : 'early';
-  return `<span class="badge ${cls}">${esc(s || '—')}</span>`;
-}
-function render() {
-  const list = filtered(), sum = l => l.reduce((t, r) => t + r.qty, 0);
-  const k = [
-    ['Machines shown', list.length, `Total demand qty ${sum(list)}`, '#1D5FBF', 'var(--ink)'],
-    ['Delay', list.filter(isDelay).length, 'Rule: ' + F.rule, '#EA7A1F', 'var(--warn)'],
-    ['ETA in 14 days', list.filter(QUICK[2][2]).length, 'Until ' + fmtD(in14), '#7FA3D6', 'var(--blue)'],
-    ['ETA changed', list.filter(etaChanged).length, 'vs ' + fmtD(D.previousAsOf), '#F2B48A', 'var(--warn)']
-  ];
-  $('kpis').innerHTML = k.map(([l, v, s, bar, col]) => `<div class="card kpi"><i style="background:${bar}"></i><div><div class="l">${l}</div><div class="v" style="color:${col}">${v}</div><div class="s">${esc(s)}</div></div></div>`).join('');
-  $('chips').innerHTML = QUICK.map(([key, l]) => `<button class="chip" type="button" aria-pressed="${F.quick===key}" data-q="${key}">${l}</button>`).join('');
-  $('thead').innerHTML = COLS.map(([key, l]) => `<th${key==='qty'?' style="text-align:right"':''}><button type="button" data-sort="${key}">${l}${sortKey===key?(sortDir>0?' ▲':' ▼'):''}</button></th>`).join('');
-  $('count').textContent = `${list.length} of ${rows.length} machines`;
-  $('tbody').innerHTML = list.map(r => {
-    const ch = etaChanged(r) && r.prevEta && r.eta ? Math.round((new Date(r.eta) - new Date(r.prevEta)) / 864e5) : 0;
-    return `<tr class="${sel===r.i?'sel':''}">
-      <td><button class="t1b" type="button" data-i="${r.i}">${esc(r.t1b)}</button>${r.isNew?'<span class="tag blue">New</span>':''}</td>
-      <td>${esc(r.site)}</td><td>${esc(r.plant)}</td><td>${esc(r.name)}</td><td>${esc(r.model)}</td><td class="num">${r.qty}</td>
-      <td>${esc(r.vendor||'—')}</td><td>${badge(r.status)}</td><td>${fmtD(r.setup)}</td>
-      <td>${fmtD(r.eta)}${isDelay(r)?'<span class="tag">Delay</span>':''}${ch?`<span class="tag ${ch<0?'blue':''}">${ch>0?'+':''}${ch}d</span>`:''}</td>
-      <td>${esc(r.poNo||'—')}</td></tr>`;
-  }).join('');
-  $('empty').classList.toggle('hidden', list.length > 0);
-  renderDetail();
-}
-function renderDetail() {
-  const r = rows.find(x => x.i === sel);
-  if (!r) { $('detail').innerHTML = `<div class="empty" style="padding:30px 6px"><b style="color:var(--ink)">Machine details</b><br>Click a T1B NO. in the table to see every field.</div>`; return; }
-  const val = c => c === 'prevEta' ? (r.prevEta === null ? 'Not in last week\'s file' : fmtD(r.prevEta)) :
-    [C.reqDate, C.setup, C.etd, C.eta].includes(c) ? fmtD(r.a[c]) : c === C.type ? typeLabel(r.a[c]) : (r.a[c] === '' || r.a[c] == null ? '—' : r.a[c]);
-  $('detail').innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-      <div><div class="muted" style="font-size:12px">${esc(r.t1b)} · Item ${esc(r.a[C.item])}</div><h2 style="font-size:19px">${esc(r.name)}</h2>
-      <div style="margin-top:6px">${badge(r.status)}${isDelay(r)?'<span class="tag">Delay</span>':''}</div></div>
-      <button class="x" type="button" id="closeDetail" aria-label="Close details">✕</button></div>` +
-    GROUPS.map(([g, cols]) => `<div class="dgroup"><h3>${g}</h3>${cols.map(c => `<div class="drow"><span>${c==='prevEta'?'ETA last week':LABEL[c]}</span><span>${esc(val(c))}</span></div>`).join('')}</div>`).join('');
-  $('closeDetail').onclick = () => { sel = null; render(); };
-}
-
-/* ---------- events ---------- */
-[['fSearch','search','input'],['fSite','site'],['fPlant','plant'],['fVendor','vendor'],['fStatus','status'],['fType','type'],['fFrom','from'],['fTo','to'],['fRule','rule']]
-  .forEach(([id, key, ev]) => $(id).addEventListener(ev || 'change', e => { F[key] = e.target.value; render(); }));
-$('chips').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) { F.quick = b.dataset.q; render(); } });
-$('thead').addEventListener('click', e => { const b = e.target.closest('[data-sort]'); if (!b) return; const k = b.dataset.sort; sortDir = sortKey === k ? -sortDir : 1; sortKey = k; render(); });
-$('tbody').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) { sel = +b.dataset.i; render(); } });
-$('clearBtn').onclick = () => { Object.assign(F, {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all'}); ['fSearch','fSite','fPlant','fVendor','fStatus','fType','fFrom','fTo'].forEach(id => $(id).value = ''); render(); };
-$('xlsBtn').onclick = () => {
-  const list = filtered(); const ws = XLSX.utils.aoa_to_sheet([D.headers, ...list.map(r => r.a)]);
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Machines');
-  XLSX.writeFile(wb, `DET_Machine_List_${today}.xlsx`);
-};
-$('pdfBtn').onclick = () => window.print();
-
-function go(v) {
-  view = v;
-  $('viewDash').classList.toggle('hidden', v !== 'dash');
-  $('viewList').classList.toggle('hidden', v !== 'list');
-  document.querySelectorAll('[data-view]').forEach(b => b.toggleAttribute('aria-current', b.dataset.view === v));
-  document.querySelectorAll('[data-view]').forEach(b => { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); });
-  window.scrollTo(0, 0);
-}
-document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { if (D) go(b.dataset.view); }));
-function clearListFilters() { Object.assign(F, {search:'',site:'',plant:'',vendor:'',status:'',type:'',from:'',to:'',quick:'all'}); F.rule = (D && D.delayRule) || 'ETA after Setup Date'; sel = null; }
-function syncListInputs() { [['fSearch','search'],['fSite','site'],['fPlant','plant'],['fVendor','vendor'],['fStatus','status'],['fType','type'],['fFrom','from'],['fTo','to'],['fRule','rule']].forEach(([id,k]) => $(id).value = F[k]); }
-
-boot();
+initMO(); initDash();
+if (Api.getToken()) { goHome(); loadMO(); } else showLogin();
 </script>
 </body>
 </html>
